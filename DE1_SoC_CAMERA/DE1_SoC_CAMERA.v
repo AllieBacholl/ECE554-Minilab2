@@ -231,6 +231,7 @@ wire	       [15:0]			Read_DATA2;
 
 wire			 [11:0]			mCCD_DATA;
 wire								mCCD_DVAL;
+
 wire								mCCD_DVAL_d;
 wire	       [15:0]			X_Cont;
 wire	       [15:0]			Y_Cont;
@@ -248,7 +249,15 @@ reg								rCCD_FVAL;
 wire	       [11:0]			sCCD_R;
 wire	       [11:0]			sCCD_G;
 wire	       [11:0]			sCCD_B;
+wire	       [11:0]			sCCD_R_BW;
+wire	       [11:0]			sCCD_G_BW;
+wire	       [11:0]			sCCD_B_BW;
+wire	       [11:0]			sCCD_R_RGB;
+wire	       [11:0]			sCCD_G_RGB;
+wire	       [11:0]			sCCD_B_RGB;
 wire								sCCD_DVAL;
+wire							   sCCD_DVAL_BW;
+wire								sCCD_DVAL_RGB;
 
 wire								sdram_ctrl_clk;
 wire	       [9:0]			oVGA_R;   				//	VGA Red[9:0]
@@ -310,16 +319,35 @@ CCD_Capture			u3	(
 							.iRST(DLY_RST_2)
 						   );
 //D5M raw date convert to RGB data
+assign sCCD_R = SW[0] ? sCCD_R_BW : sCCD_R_RGB;
+assign sCCD_G = SW[0] ? sCCD_G_BW : sCCD_G_RGB;
+assign sCCD_B = SW[0] ? sCCD_B_BW : sCCD_B_RGB;
+assign sCCD_DVAL = SW[0] ? sCCD_DVAL_BW : sCCD_DVAL_RGB;
 
-img_proc				u4	(	
+img_proc				u10	(	
 							.iCLK(D5M_PIXLCLK),
 							.iRST(DLY_RST_1),
 							.iDATA(mCCD_DATA),
 							.iDVAL(mCCD_DVAL),
-							.oRed(sCCD_R),
-							.oGreen(sCCD_G),
-							.oBlue(sCCD_B),
-							.oDVAL(sCCD_DVAL),
+							.oRed(sCCD_R_BW),
+							.oGreen(sCCD_G_BW),
+							.oBlue(sCCD_B_BW),
+							.oDVAL(sCCD_DVAL_BW),
+							.iX_Cont(X_Cont),
+							.iY_Cont(Y_Cont),
+                     .iSW(SW[1]),
+                     .iSW1(SW[2])
+						   );
+
+RAW2RGB				u4	(	
+							.iCLK(D5M_PIXLCLK),
+							.iRST(DLY_RST_1),
+							.iDATA(mCCD_DATA),
+							.iDVAL(mCCD_DVAL),
+							.oRed(sCCD_R_RGB),
+							.oGreen(sCCD_G_RGB),
+							.oBlue(sCCD_B_RGB),
+							.oDVAL(sCCD_DVAL_RGB),
 							.iX_Cont(X_Cont),
 							.iY_Cont(Y_Cont)
 						   );
