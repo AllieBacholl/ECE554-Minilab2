@@ -319,11 +319,13 @@ CCD_Capture			u3	(
 							.iRST(DLY_RST_2)
 						   );
 //D5M raw date convert to RGB data
+// Switch between grayscale and rgb output
 assign sCCD_R = SW[0] ? sCCD_R_BW : sCCD_R_RGB;
 assign sCCD_G = SW[0] ? sCCD_G_BW : sCCD_G_RGB;
 assign sCCD_B = SW[0] ? sCCD_B_BW : sCCD_B_RGB;
 assign sCCD_DVAL = SW[0] ? sCCD_DVAL_BW : sCCD_DVAL_RGB;
 
+// Module written for this lab
 img_proc				u10	(	
 							.iCLK(D5M_PIXLCLK),
 							.iRST(DLY_RST_1),
@@ -339,6 +341,7 @@ img_proc				u10	(
                      .iSW1(SW[2])
 						   );
 
+// Already written module
 RAW2RGB				u4	(	
 							.iCLK(D5M_PIXLCLK),
 							.iRST(DLY_RST_1),

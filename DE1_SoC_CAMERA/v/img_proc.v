@@ -44,6 +44,7 @@ wire	[11:0]	mDATA_1;
 reg		[11:0]	mDATAd_0;
 reg		[11:0]	mDATAd_1;
 
+// SW1 controls if the output is grayscale or edge detection
 assign oRed = iSW ? pixel_out_abs : pixel_out;
 assign oGreen = iSW ? pixel_out_abs : pixel_out;
 assign oBlue = iSW ? pixel_out_abs : pixel_out;
@@ -51,16 +52,17 @@ assign	oDVAL = iSW ? mDVAL : mDVAL;
 
 assign pixel_out_conv_horz = pixel_out_conv_horz_13[11:0];
 assign pixel_out_conv_vert = pixel_out_conv_vert_13[11:0];
+// SW2 controls if the edge detection is horizontal or vertical
 assign pixel_out_conv = iSW1 ? pixel_out_conv_horz : pixel_out_conv_vert;
 
-// Line buffer to store values from the camera
+// Line buffer to store values from the camera (already generator)
 Line_Buffer1 u0(.clken(iDVAL),
 					.clock(iCLK),
 					.shiftin(iDATA),
 					.taps0x(mDATA_1),
 					.taps1x(mDATA_0));
 
-// Line buffer to store grayscale values for convolution
+// Line buffer to store grayscale values for convolution (generated for this lab)
 buffer3 u1(.clken(mDVAL),
 				.clock(iCLK),
 				.shiftin(pixel_out),
@@ -96,8 +98,10 @@ always @(posedge iCLK or negedge iRST) begin
 			pixel_2dd <= pixel_2d;
 		end
 
+		// Vertical and horizontal filters following the filter coefficients given in writeup
 		pixel_out_conv_vert_13 <= (~pixel0_dd + 1) + (pixel_0) + (~(pixel_1dd << 1) + 1) + (pixel_1 << 1) + (~pixel_2dd + 1) + (pixel_2);
 		pixel_out_conv_horz_13 <= (~pixel0_dd + 1) + (~(pixel_0d << 1) + 1) + (~pixel_0 + 1) + (pixel_2dd) + (pixel_2d << 1) + (pixel_2);
+		// Take the absolute value of the resulting filter convolution
 		pixel_out_abs <= pixel_out_conv[11] ? (~pixel_out_conv + 1) : pixel_out_conv;
 
 	end
